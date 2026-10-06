@@ -109,10 +109,34 @@
       ws.onmessage = (event) => {
         const data = JSON.parse(event.data);
 
-        // Atualização em tempo real vinda do servidor
+        // Caso 1: O servidor enviou a pontuação já consolidada
         if (data.type === 'SCORE_UPDATE') {
           votesLula = data.votesLula;
           votesFlavio = data.votesFlavio;
+          updateUI();
+        } 
+        // Caso 2: O servidor enviou o evento direto do presente (GIFT)
+        else if (data.type === 'GIFT' || data.giftName !== undefined || data.gift !== undefined) {
+          // Busca o nome do presente em todas as propriedades possíveis para evitar 'undefined'
+          const rawGiftName = data.giftName || 
+                              (data.gift && data.gift.gift_name) || 
+                              (data.giftDetails && data.giftDetails.giftName) || 
+                              '';
+
+          const gift = rawGiftName.toLowerCase();
+          const count = data.repeatCount || data.combo || 1;
+
+          console.log("Presente detectado no navegador:", rawGiftName, "Quantidade:", count);
+
+          // Verifica se é Rosa Branca para o Flávio
+          if (gift.includes('white') || gift.includes('branca')) {
+            votesFlavio += count;
+          } 
+          // Qualquer outra Rosa vai para o Lula
+          else if (gift.includes('rose') || gift.includes('rosa')) {
+            votesLula += count;
+          }
+
           updateUI();
         }
       };
