@@ -70,7 +70,8 @@
     let votesLula = 0;
     let votesFlavio = 0;
 
-    // Endereço seguro gerado pelo seu Localtunnel
+    // Coloque aqui o link gerado pelo seu túnel ativo (Localtunnel ou Cloudflare)
+    // Se estiver usando localtunnel, mantenha o wss://some-jokes-hear.loca.lt
     const TUNNEL_URL = 'wss://some-jokes-hear.loca.lt';
 
     function updateUI() {
@@ -90,11 +91,15 @@
     }
 
     function connectWS() {
-      // Detecta se a página está rodando no GitHub Pages ou localmente
       const isOnlineSite = window.location.hostname.includes('github.io');
-      const wsUrl = isOnlineSite ? TUNNEL_URL : 'ws://localhost:8080';
+      
+      // Se for no Localtunnel, adiciona parâmetro de query para burlar o aviso de segurança
+      let targetUrl = isOnlineSite ? TUNNEL_URL : 'ws://localhost:8080';
+      if (isOnlineSite && targetUrl.includes('loca.lt') && !targetUrl.includes('bypass-tunnel-reminder')) {
+        targetUrl += '?bypass-tunnel-reminder=true';
+      }
 
-      const ws = new WebSocket(wsUrl);
+      const ws = new WebSocket(targetUrl);
 
       ws.onopen = () => {
         const statusEl = document.getElementById('status');
@@ -106,7 +111,7 @@
 
       ws.onclose = () => {
         const statusEl = document.getElementById('status');
-        statusEl.innerText = '🔴 Servidor Offline (Inicie o node server.js)';
+        statusEl.innerText = '🔴 Servidor Offline (Aguardando reconexão...)';
         statusEl.style.color = '#ff3333';
         setTimeout(connectWS, 2000);
       };
@@ -118,13 +123,13 @@
       ws.onmessage = (event) => {
         const data = JSON.parse(event.data);
 
-        // Trata o placar vindo diretamente calculado do servidor
+        // Trata a atualização de placar enviada diretamente pelo servidor
         if (data.type === 'SCORE_UPDATE') {
           votesLula = data.votesLula;
           votesFlavio = data.votesFlavio;
           updateUI();
         } 
-        // Trata a leitura individual de eventos de presente (GIFT)
+        // Trata os eventos individuais de presentes (GIFT)
         else if (data.type === 'GIFT' || data.giftName !== undefined || data.gift !== undefined) {
           const rawGiftName = data.giftName || 
                               (data.gift && data.gift.gift_name) || 
@@ -134,7 +139,7 @@
           const gift = rawGiftName.toLowerCase();
           const count = data.repeatCount || data.combo || 1;
 
-          console.log("Presente detectado no navegador:", rawGiftName, "Quantidade:", count);
+          console.log("Presente recebido no app:", rawGiftName, "Qtd:", count);
 
           if (gift.includes('white') || gift.includes('branca')) {
             votesFlavio += count;
