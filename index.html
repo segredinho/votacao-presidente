@@ -1,132 +1,124 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<title>Votação ao Vivo</title>
-<style>
-body {
-font-family: Arial, sans-serif;
-background-color: #121212;
-color: white;
-text-align: center;
-margin: 0;
-padding: 20px;
-}
-#status {
-font-size: 18px;
-font-weight: bold;
-margin-bottom: 20px;
-}
-.container {
-display: flex;
-justify-content: space-around;
-margin-top: 30px;
-}
-.card {
-width: 45%;
-padding: 20px;
-border-radius: 15px;
-}
-.lula { background-color: #e63946; }
-.flavio { background-color: #1d3557; }
-.score { font-size: 48px; font-weight: bold; margin: 10px 0; }
-.bar-container {
-width: 100%;
-height: 30px;
-background-color: #333;
-border-radius: 15px;
-margin-top: 30px;
-overflow: hidden;
-display: flex;
-}
-.bar-lula { height: 100%; background-color: #e63946; width: 50%; transition: width 0.3s; }
-.bar-flavio { height: 100%; background-color: #1d3557; width: 50%; transition: width 0.3s; }
-</style>
+  <meta charset="UTF-8">
+  <title>Votação ao Vivo</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #121212;
+      color: white;
+      text-align: center;
+      margin: 0;
+      padding: 20px;
+    }
+    #status {
+      font-size: 18px;
+      font-weight: bold;
+      margin-bottom: 20px;
+    }
+    .container {
+      display: flex;
+      justify-content: space-around;
+      margin-top: 30px;
+    }
+    .card {
+      width: 45%;
+      padding: 20px;
+      border-radius: 15px;
+    }
+    .lula { background-color: #e63946; }
+    .flavio { background-color: #1d3557; }
+    .score { font-size: 48px; font-weight: bold; margin: 10px 0; }
+    .bar-container {
+      width: 100%;
+      height: 30px;
+      background-color: #333;
+      border-radius: 15px;
+      margin-top: 30px;
+      overflow: hidden;
+      display: flex;
+    }
+    .bar-lula { height: 100%; background-color: #e63946; width: 50%; transition: width 0.3s; }
+    .bar-flavio { height: 100%; background-color: #1d3557; width: 50%; transition: width 0.3s; }
+  </style>
 </head>
 <body>
 
-<h1>🔥 GRANDE BATALHA AO VIVO 🔥</h1>
-<div id="status" style="color: #ff3333;">🔴 Conectando ao servidor...</div>
+  <h1>🔥 GRANDE BATALHA AO VIVO 🔥</h1>
+  <div id="status" style="color: #ff3333;">🔴 Conectando ao servidor...</div>
 
-<div class="container">
-<div class="card lula">
-<h2>LULA</h2>
-<p>Envie 🌹 Rosa Vermelha</p>
-<div id="scoreLula" class="score">0</div>
-</div>
-<div class="card flavio">
-<h2>FLÁVIO B.</h2>
-<p>Envie ⚪ Rosa Branca</p>
-<div id="scoreFlavio" class="score">0</div>
-</div>
-</div>
+  <div class="container">
+    <div class="card lula">
+      <h2>LULA</h2>
+      <p>Envie 🌹 Rosa Vermelha</p>
+      <div id="scoreLula" class="score">0</div>
+    </div>
+    <div class="card flavio">
+      <h2>FLÁVIO B.</h2>
+      <p>Envie ⚪ Rosa Branca</p>
+      <div id="scoreFlavio" class="score">0</div>
+    </div>
+  </div>
 
-<div class="bar-container">
-<div id="barLula" class="bar-lula"></div>
-<div id="barFlavio" class="bar-flavio"></div>
-</div>
+  <div class="bar-container">
+    <div id="barLula" class="bar-lula"></div>
+    <div id="barFlavio" class="bar-flavio"></div>
+  </div>
 
-<script>
-let votesLula = 0;
-let votesFlavio = 0;
+  <script>
+    let votesLula = 0;
+    let votesFlavio = 0;
 
-function updateUI() {
-document.getElementById('scoreLula').innerText = votesLula;
-document.getElementById('scoreFlavio').innerText = votesFlavio;
+    function updateUI() {
+      document.getElementById('scoreLula').innerText = votesLula;
+      document.getElementById('scoreFlavio').innerText = votesFlavio;
 
-const total = votesLula + votesFlavio;
-if (total > 0) {
-const pctLula = (votesLula / total) * 100;
-const pctFlavio = (votesFlavio / total) * 100;
-document.getElementById('barLula').style.width = pctLula + '%';
-document.getElementById('barFlavio').style.width = pctFlavio + '%';
-}
-}
+      const total = votesLula + votesFlavio;
+      if (total > 0) {
+        const pctLula = (votesLula / total) * 100;
+        const pctFlavio = (votesFlavio / total) * 100;
+        document.getElementById('barLula').style.width = pctLula + '%';
+        document.getElementById('barFlavio').style.width = pctFlavio + '%';
+      } else {
+        document.getElementById('barLula').style.width = '50%';
+        document.getElementById('barFlavio').style.width = '50%';
+      }
+    }
 
-function connectWS() {
-// Conecta no WebSocket local do seu computador
-const ws = new WebSocket('ws://localhost:8080');
+    function connectWS() {
+      const ws = new WebSocket('ws://localhost:8080');
 
-ws.onopen = () => {
-const statusEl = document.getElementById('status');
-statusEl.innerText = '🟢 Conectado ao conector local!';
-statusEl.style.color = '#00ff66';
-};
+      ws.onopen = () => {
+        const statusEl = document.getElementById('status');
+        statusEl.innerText = '🟢 Conectado ao conector local!';
+        statusEl.style.color = '#00ff66';
+      };
 
-ws.onclose = () => {
-const statusEl = document.getElementById('status');
-statusEl.innerText = '🔴 Servidor Offline (Inicie o node server.js)';
-statusEl.style.color = '#ff3333';
-setTimeout(connectWS, 2000);
-};
+      ws.onclose = () => {
+        const statusEl = document.getElementById('status');
+        statusEl.innerText = '🔴 Servidor Offline (Inicie o node server.js)';
+        statusEl.style.color = '#ff3333';
+        setTimeout(connectWS, 2000);
+      };
 
-ws.onerror = (err) => {
-console.error('Erro no WebSocket:', err);
-};
+      ws.onerror = (err) => {
+        console.error('Erro no WebSocket:', err);
+      };
 
-ws.onmessage = (event) => {
-const data = JSON.parse(event.data);
-if (data.type === 'GIFT') {
-const gift = (data.giftName || '').toLowerCase();
-const count = data.repeatCount || 1;
+      ws.onmessage = (event) => {
+        const data = JSON.parse(event.data);
 
-console.log("Presente detectado no navegador:", gift, "Quantidade:", count);
+        // Atualização em tempo real vinda do servidor
+        if (data.type === 'SCORE_UPDATE') {
+          votesLula = data.votesLula;
+          votesFlavio = data.votesFlavio;
+          updateUI();
+        }
+      };
+    }
 
-// Verifica variações de nome para a Rosa Branca
-if (gift.includes('white') || gift.includes('branca')) {
-votesFlavio += count;
-}
-// Qualquer outra rosa (Rose / Rosa) vai para o Lula
-else if (gift.includes('rose') || gift.includes('rosa')) {
-votesLula += count;
-}
-
-updateUI();
-}
-};
-}
-
-connectWS();
-</script>
+    connectWS();
+  </script>
 </body>
 </html>
