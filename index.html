@@ -70,6 +70,10 @@
     let votesLula = 0;
     let votesFlavio = 0;
 
+    // Cole aqui o endereço público gerado pelo seu túnel (ex: Ngrok ou Localtunnel)
+    // Exemplo: 'wss://seu-subdominio.ngrok-free.app'
+    const TUNNEL_URL = 'wss://SEU-LINK-DO-NGROK.ngrok-free.app';
+
     function updateUI() {
       document.getElementById('scoreLula').innerText = votesLula;
       document.getElementById('scoreFlavio').innerText = votesFlavio;
@@ -87,11 +91,17 @@
     }
 
     function connectWS() {
-      const ws = new WebSocket('ws://localhost:8080');
+      // Detecta se a página está rodando no GitHub Pages ou localmente
+      const isOnlineSite = window.location.hostname.includes('github.io');
+      const wsUrl = isOnlineSite ? TUNNEL_URL : 'ws://localhost:8080';
+
+      const ws = new WebSocket(wsUrl);
 
       ws.onopen = () => {
         const statusEl = document.getElementById('status');
-        statusEl.innerText = '🟢 Conectado ao conector local!';
+        statusEl.innerText = isOnlineSite 
+          ? '🟢 Conectado ao servidor remoto!' 
+          : '🟢 Conectado ao conector local!';
         statusEl.style.color = '#00ff66';
       };
 
@@ -109,15 +119,14 @@
       ws.onmessage = (event) => {
         const data = JSON.parse(event.data);
 
-        // Caso 1: O servidor enviou a pontuação já consolidada
+        // Trata o placar vindo diretamente calculado do servidor
         if (data.type === 'SCORE_UPDATE') {
           votesLula = data.votesLula;
           votesFlavio = data.votesFlavio;
           updateUI();
         } 
-        // Caso 2: O servidor enviou o evento direto do presente (GIFT)
+        // Trata a leitura individual de eventos de presente (GIFT)
         else if (data.type === 'GIFT' || data.giftName !== undefined || data.gift !== undefined) {
-          // Busca o nome do presente em todas as propriedades possíveis para evitar 'undefined'
           const rawGiftName = data.giftName || 
                               (data.gift && data.gift.gift_name) || 
                               (data.giftDetails && data.giftDetails.giftName) || 
@@ -128,12 +137,9 @@
 
           console.log("Presente detectado no navegador:", rawGiftName, "Quantidade:", count);
 
-          // Verifica se é Rosa Branca para o Flávio
           if (gift.includes('white') || gift.includes('branca')) {
             votesFlavio += count;
-          } 
-          // Qualquer outra Rosa vai para o Lula
-          else if (gift.includes('rose') || gift.includes('rosa')) {
+          } else if (gift.includes('rose') || gift.includes('rosa')) {
             votesLula += count;
           }
 
