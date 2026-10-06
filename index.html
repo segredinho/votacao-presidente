@@ -2,132 +2,68 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<title>Votação TikTok LIVE - Lula vs Flávio</title>
+<title>Votação ao Vivo</title>
 <style>
-* { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Arial Black', sans-serif; }
 body {
-background: #0d1117;
+font-family: Arial, sans-serif;
+background-color: #121212;
 color: white;
-display: flex;
-flex-direction: column;
-align-items: center;
-justify-content: center;
-min-height: 100vh;
-overflow: hidden;
-}
-.header {
 text-align: center;
+margin: 0;
+padding: 20px;
+}
+#status {
+font-size: 18px;
+font-weight: bold;
 margin-bottom: 20px;
-}
-.title {
-font-size: 2.5rem;
-text-transform: uppercase;
-text-shadow: 0 0 10px rgba(255,255,255,0.5);
-}
-.status {
-font-size: 1rem;
-color: #00ff66;
-margin-top: 5px;
 }
 .container {
 display: flex;
-width: 90vw;
-max-width: 900px;
-height: 450px;
-border-radius: 20px;
-overflow: hidden;
-box-shadow: 0 0 30px rgba(0,0,0,0.8);
-border: 4px solid #333;
+justify-content: space-around;
+margin-top: 30px;
 }
-.candidate {
-flex: 1;
-display: flex;
-flex-direction: column;
-align-items: center;
-justify-content: space-between;
-padding: 30px 20px;
-transition: flex 0.4s ease;
-position: relative;
-}
-.lula {
-background: linear-gradient(135deg, #cc1100, #880000);
-}
-.flavio {
-background: linear-gradient(135deg, #1144bb, #002266);
-}
-.avatar {
-width: 140px;
-height: 140px;
-border-radius: 50%;
-border: 4px solid white;
-box-shadow: 0 5px 15px rgba(0,0,0,0.5);
-background-size: cover;
-background-position: center;
-}
-.name {
-font-size: 2rem;
-text-transform: uppercase;
-}
-.gift-info {
-background: rgba(0,0,0,0.4);
-padding: 10px 20px;
-border-radius: 30px;
-font-size: 1.1rem;
-display: flex;
-align-items: center;
-gap: 10px;
-}
-.score {
-font-size: 4rem;
-font-weight: 900;
-text-shadow: 0 3px 6px rgba(0,0,0,0.6);
-}
-.bar-container {
-width: 90vw;
-max-width: 900px;
-height: 30px;
-background: #222;
+.card {
+width: 45%;
+padding: 20px;
 border-radius: 15px;
-margin-top: 20px;
+}
+.lula { background-color: #e63946; }
+.flavio { background-color: #1d3557; }
+.score { font-size: 48px; font-weight: bold; margin: 10px 0; }
+.bar-container {
+width: 100%;
+height: 30px;
+background-color: #333;
+border-radius: 15px;
+margin-top: 30px;
 overflow: hidden;
 display: flex;
 }
-.bar-lula { width: 50%; background: #ff3333; transition: width 0.3s; }
-.bar-flavio { width: 50%; background: #3388ff; transition: width 0.3s; }
+.bar-lula { height: 100%; background-color: #e63946; width: 50%; transition: width 0.3s; }
+.bar-flavio { height: 100%; background-color: #1d3557; width: 50%; transition: width 0.3s; }
 </style>
 </head>
 <body>
 
-<div class="header">
-<h1 class="title">🔥 Grande Batalha Ao Vivo 🔥</h1>
-<div id="status" class="status">Desconectado do Servidor Local</div>
-</div>
+<h1>🔥 GRANDE BATALHA AO VIVO 🔥</h1>
+<div id="status" style="color: #ff3333;">🔴 Conectando ao servidor...</div>
 
 <div class="container">
-<!-- LULA -->
-<div class="candidate lula" id="card-lula">
-<div class="name">Lula</div>
-<div class="avatar" style="background-image: url('https://upload.wikimedia.org/wikipedia/commons/thumb/f/f4/Lula_-_foto_oficial_05_jan_2023.jpg/480px-Lula_-_foto_oficial_05_jan_2023.jpg');"></div>
-<div class="gift-info">
-<span>Envie 🌹 <b>Rosa Vermelha</b></span>
+<div class="card lula">
+<h2>LULA</h2>
+<p>Envie 🌹 Rosa Vermelha</p>
+<div id="scoreLula" class="score">0</div>
 </div>
-<div class="score" id="score-lula">0</div>
-</div>
-
-<!-- FLÁVIO BOLSONARO -->
-<div class="candidate flavio" id="card-flavio">
-<div class="name">Flávio B.</div>
-<div class="avatar" style="background-image: url('https://upload.wikimedia.org/wikipedia/commons/thumb/c/ca/Fl%C3%A1vio_Bolsonaro_oficial.jpg/480px-Fl%C3%A1vio_Bolsonaro_oficial.jpg');"></div>
-<div class="gift-info">
-<span>Envie ⚪ <b>Rosa Branca / White Rose</b></span>
-</div>
-<div class="score" id="score-flavio">0</div>
+<div class="card flavio">
+<h2>FLÁVIO B.</h2>
+<p>Envie ⚪ Rosa Branca</p>
+<div id="scoreFlavio" class="score">0</div>
 </div>
 </div>
 
 <div class="bar-container">
-<div class="bar-lula" id="bar-lula"></div>
-<div class="bar-flavio" id="bar-flavio"></div>
+<div id="barLula" class="bar-lula"></div>
+<div id="barFlavio" class="bar-flavio"></div>
 </div>
 
 <script>
@@ -135,48 +71,62 @@ let votesLula = 0;
 let votesFlavio = 0;
 
 function updateUI() {
-document.getElementById('score-lula').innerText = votesLula;
-document.getElementById('score-flavio').innerText = votesFlavio;
+document.getElementById('scoreLula').innerText = votesLula;
+document.getElementById('scoreFlavio').innerText = votesFlavio;
 
 const total = votesLula + votesFlavio;
 if (total > 0) {
 const pctLula = (votesLula / total) * 100;
 const pctFlavio = (votesFlavio / total) * 100;
-document.getElementById('bar-lula').style.width = pctLula + '%';
-document.getElementById('bar-flavio').style.width = pctFlavio + '%';
-
-document.getElementById('card-lula').style.flex = votesLula || 1;
-document.getElementById('card-flavio').style.flex = votesFlavio || 1;
+document.getElementById('barLula').style.width = pctLula + '%';
+document.getElementById('barFlavio').style.width = pctFlavio + '%';
 }
 }
 
-// Conecta ao servidor local Node.js (que escuta o TikTok)
+function connectWS() {
+// Conecta no WebSocket local do seu computador
 const ws = new WebSocket('ws://localhost:8080');
 
 ws.onopen = () => {
-document.getElementById('status').innerText = '🟢 Conectado à Live do TikTok';
+const statusEl = document.getElementById('status');
+statusEl.innerText = '🟢 Conectado ao conector local!';
+statusEl.style.color = '#00ff66';
 };
 
 ws.onclose = () => {
-document.getElementById('status').innerText = '🔴 Servidor Offline (Inicie o Node.js)';
+const statusEl = document.getElementById('status');
+statusEl.innerText = '🔴 Servidor Offline (Inicie o node server.js)';
+statusEl.style.color = '#ff3333';
+setTimeout(connectWS, 2000);
+};
+
+ws.onerror = (err) => {
+console.error('Erro no WebSocket:', err);
 };
 
 ws.onmessage = (event) => {
 const data = JSON.parse(event.data);
 if (data.type === 'GIFT') {
-// ID / Nome dos Presentes no TikTok
-// Rosa Comum = "Rose" ou ID 5655
-// Rosa Branca = "White Rose"
-const giftName = data.giftName.toLowerCase();
+const gift = (data.giftName || '').toLowerCase();
+const count = data.repeatCount || 1;
 
-if (giftName.includes('rose') && !giftName.includes('white')) {
-votesLula += data.repeatCount;
-} else if (giftName.includes('white rose') || giftName.includes('branca')) {
-votesFlavio += data.repeatCount;
+console.log("Presente detectado no navegador:", gift, "Quantidade:", count);
+
+// Verifica variações de nome para a Rosa Branca
+if (gift.includes('white') || gift.includes('branca')) {
+votesFlavio += count;
 }
+// Qualquer outra rosa (Rose / Rosa) vai para o Lula
+else if (gift.includes('rose') || gift.includes('rosa')) {
+votesLula += count;
+}
+
 updateUI();
 }
 };
+}
+
+connectWS();
 </script>
 </body>
 </html>
